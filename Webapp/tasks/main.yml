@@ -1,0 +1,39 @@
+     - name: apt update
+       apt:
+         name: '*'
+         state: latest
+     - name: java install
+       apt:
+         update_cache: yes
+         name: openjdk-8-jdk
+         state: present
+     - name: install tomcat
+       get_url:
+         url: https://mirrors.estointernet.in/apache/tomcat/tomcat-9/v9.0.40/bin/apache-tomcat-9.0.40.zip
+         dest: /var/local
+         mode: '0777'
+     - name: unzip
+       unarchive:
+         src: /var/local/apache-tomcat-9.0.40.zip
+         dest: /usr/local/
+         remote_src: yes
+         mode: '0777'
+     - name: config parameter change
+       template:
+         src: server.xml.j2
+         dest: /usr/local/apache-tomcat-9.0.40/conf/server.xml
+         mode: '0777'
+     - name: start tomcat
+       shell: nohup /usr/local/apache-tomcat-9.0.40/bin/startup.sh &
+     - name: get deploymeny package
+       get_url:
+         url: https://tomcat.apache.org/tomcat-7.0-doc/appdev/sample/sample.war
+         dest: /tmp/
+         mode: '0777'
+     - name: deployment
+       copy:
+         src: /tmp/sample.war
+         dest: /usr/local/apache-tomcat-9.0.40/webapps
+         remote_src: yes
+         mode: '0777'
+
